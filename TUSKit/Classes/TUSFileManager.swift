@@ -8,21 +8,29 @@
 import Foundation
 
 class TUSFileManager: NSObject {
+    private weak var client: TUSClient?
+    
+    init(with client: TUSClient) {
+        self.client = client
+        super.init()
+        self.createFileDirectory()
+    }
+    
     // MARK: Private file storage methods
     
-    internal func fileStorePath() -> String {
+    func fileStorePath() -> String {
         let paths = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.documentDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)
         let documentsDirectory: String = paths[0]
         return documentsDirectory.appending(TUSConstants.TUSFileDirectoryName)
     }
     
-    internal func createFileDirectory() {
+    private func createFileDirectory() {
         do {
             try FileManager.default.createDirectory(atPath: fileStorePath(), withIntermediateDirectories: false, attributes: nil)
         } catch let error as NSError {
             if (error.code != 516) { //516 is failed creating due to already existing
                 let response: TUSResponse = TUSResponse(message: "Failed creating TUS directory in documents")
-                TUSClient.shared.delegate?.TUSFailure(forUpload: nil, withResponse: response, andError: error)
+                client?.delegate?.TUSFailure(forUpload: nil, withResponse: response, andError: error)
 
             }
         }
@@ -47,7 +55,7 @@ class TUSFileManager: NSObject {
                 return true
         } catch let error as NSError {
             let response: TUSResponse = TUSResponse(message: "Failed deleting file \(name) from TUS folder storage")
-            TUSClient.shared.delegate?.TUSFailure(forUpload: nil, withResponse: response, andError: error)
+            client?.delegate?.TUSFailure(forUpload: nil, withResponse: response, andError: error)
             return false
         }
     }
@@ -59,11 +67,11 @@ class TUSFileManager: NSObject {
                 return (fileSize as! NSNumber).uint64Value
             } else {
                 let response: TUSResponse = TUSResponse(message: "Failed to get a size attribute from path: \(filePath)")
-                TUSClient.shared.delegate?.TUSFailure(forUpload: nil, withResponse: response, andError: nil)
+                client?.delegate?.TUSFailure(forUpload: nil, withResponse: response, andError: nil)
             }
         } catch {
             let response: TUSResponse = TUSResponse(message: "Failed to get a size attribute from path: \(filePath)")
-            TUSClient.shared.delegate?.TUSFailure(forUpload: nil, withResponse: response, andError: error)
+            client?.delegate?.TUSFailure(forUpload: nil, withResponse: response, andError: error)
         }
         return 0
     }

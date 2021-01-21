@@ -12,11 +12,6 @@ public struct TUSConfig {
     var URLSessionConfig: URLSessionConfiguration = URLSessionConfiguration.default
     public var logLevel: TUSLogLevel = .Off
     
-    public init(withUploadURLString uploadURLString: String, andSessionConfig sessionConfig: URLSessionConfiguration = URLSessionConfiguration.default) {
-        self.uploadURL = URL(string: uploadURLString)!
-        self.URLSessionConfig = sessionConfig
-    }
-    
     public init(withUploadURL uploadURL: URL, andSessionConfig sessionConfig: URLSessionConfiguration = URLSessionConfiguration.default) {
         self.uploadURL = uploadURL
         self.URLSessionConfig = sessionConfig
